@@ -1,0 +1,39 @@
+import pandas as pd
+
+# Load dataset
+df = pd.read_csv("instagram_analytics.csv")
+
+# Create a copy for processing
+instagram = df.copy()
+
+# Standardize column names (lowercase, trimmed, underscores)
+instagram.columns = instagram.columns.str.lower().str.strip().str.replace(" ", "_")
+
+# Handle missing categorical values
+categorical_cols = ["account_type", "media_type", "content_category", "traffic_source"]
+for col in categorical_cols:
+    if col in instagram.columns:
+        instagram[col] = instagram[col].fillna("Unknown")
+
+# Handle missing numerical values
+numeric_columns = ["likes", "comments", "shares", "saves", "reach", "impressions", "followers_gained"]
+for col in numeric_columns:
+    if col in instagram.columns:
+        instagram[col] = instagram[col].fillna(0)
+
+# Remove duplicate records
+instagram.drop_duplicates(inplace=True)
+
+# Convert date column to standard datetime
+if "post_date" in instagram.columns:
+    instagram["post_date"] = pd.to_datetime(instagram["post_date"], errors="coerce")
+
+# Display dataset information
+print("Original Shape:", df.shape)
+print("Cleaned Shape:", instagram.shape)
+
+print("\nDataset Preview:")
+print(instagram.head())
+
+print("\nDataset Information:")
+print(instagram.info())
